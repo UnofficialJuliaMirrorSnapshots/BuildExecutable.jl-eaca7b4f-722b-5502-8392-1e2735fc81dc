@@ -1,0 +1,29 @@
+# Documentation: http://docs.travis-ci.com/user/languages/julia/
+language: julia
+os:
+  - linux
+  - osx
+julia:
+  - 0.5
+  - nightly
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-5
+notifications:
+  email: false
+# uncomment the following lines to override the default test script
+before_install:
+  - if [ `uname` = "Linux" ]; then
+      sudo add-apt-repository ppa:staticfloat/julia-deps -y;
+      sudo apt-get update -qq -y;
+      mkdir -p $HOME/bin;
+      ln -s /usr/bin/gcc-5 $HOME/bin/gcc;
+      ln -s /usr/bin/gcc-5 $HOME/bin/x86_64-linux-gnu-gcc;
+      gcc --version;
+    fi
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.clone(pwd()); Pkg.build("BuildExecutable"); Pkg.test("BuildExecutable"; coverage=true)'
